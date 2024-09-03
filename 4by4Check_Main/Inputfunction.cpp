@@ -29,7 +29,7 @@ std::tuple<int, Mat> Inputfunction()
 				//Rawpic = imread("D:/AOI_Project/L5-1AOI/L5-1Offset/pic/Testpic/" + string(std::to_string(picorder)) + ".bmp");//loading the image
 				//L5-1 lucid camera::
 
-				Rawpic = imread(R"x(D:\AOI_Project\L5-1AOI\MT1_4by4chips\pic\1328\)x" + string(std::to_string(picorder)) + ".bmp");
+				Rawpic = imread(R"x(C:\Image\4X4\1328\)x" + string(std::to_string(picorder)) + ".bmp");
 
 				///cv::imwrite(R"x(D:\AOI_Project\L0_MassTrimming\CPchip\pic\20240614\704102.bmp)x", Rawpic);
 
@@ -46,7 +46,7 @@ std::tuple<int, Mat> Inputfunction()
 				//Rawpic = imread("D:/AOI_Project/L5-1AOI/L5-1Offset/pic/Testpic/" + string(std::to_string(picorder)) + ".bmp");//loading the image
 				//L5-1 lucid camera::
 
-				Rawpic = imread(R"x(D:\AOI_Project\L5-1AOI\MT1_4by4chips\pic\1530\)x" + string(std::to_string(picorder)) + ".bmp");
+				Rawpic = imread(R"x(C:\Image\4X4\1530\)x" + string(std::to_string(picorder)) + ".bmp");
 
 				///cv::imwrite(R"x(D:\AOI_Project\L0_MassTrimming\CPchip\pic\20240614\704102.bmp)x", Rawpic);
 
@@ -63,7 +63,7 @@ std::tuple<int, Mat> Inputfunction()
 				//Rawpic = imread("D:/AOI_Project/L5-1AOI/L5-1Offset/pic/Testpic/" + string(std::to_string(picorder)) + ".bmp");//loading the image
 				//L5-1 lucid camera::
 
-				Rawpic = imread(R"x(D:\AOI_Project\L5-1AOI\MT1_4by4chips\pic\1836\)x" + string(std::to_string(picorder)) + ".bmp");
+				Rawpic = imread(R"x(C:\Image\4X4\1836\)x" + string(std::to_string(picorder)) + ".bmp");
 
 				
 

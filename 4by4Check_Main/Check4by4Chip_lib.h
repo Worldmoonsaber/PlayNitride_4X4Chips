@@ -20,7 +20,7 @@ typedef struct
 	int ypitch[3];
 	int carx;
 	int cary;
-}SettingP;
+}SettingP_;
 
 typedef struct
 {
@@ -32,7 +32,7 @@ typedef struct
 	double TDmaxH;
 	double TDminH;
 
-}sizeTD;
+}sizeTD_;
 
 typedef struct
 {
@@ -42,7 +42,7 @@ typedef struct
 	int fgmax[3];
 	int fgmin[3];
 
-}thresP;
+}thresP_;
 
 typedef struct
 {
@@ -51,7 +51,7 @@ typedef struct
 	int cols; //
 	int rows; //
 	double correctTheta;
-}ImgP;
+}ImgP_;
 
 #pragma endregion
 
@@ -74,8 +74,8 @@ Mat KmeanOP(int knum, Mat src);
 
 
 
-std::tuple<Point, int,Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD target, thresP thresParm, int flag, double distPX);
-std::tuple< int, Mat, Mat> check4by4_V1(Mat src, Mat thresimg, int boolflag, Point Potchip, SettingP chipsetting, vector<Point> TDcnt);
+std::tuple<Point, int,Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX);
+std::tuple< int, Mat, Mat> check4by4_V1(Mat src, Mat thresimg, int boolflag, Point Potchip, SettingP_ chipsetting, vector<Point> TDcnt);
 
 
 #pragma endregion

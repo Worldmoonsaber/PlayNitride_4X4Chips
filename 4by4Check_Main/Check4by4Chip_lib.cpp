@@ -3,7 +3,7 @@
 
 #pragma region STEP1_roughlysearch 
 
-std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD target, thresP thresParm, int flag, double distPX)
+std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX)
 {
 	Point potentialchip = Point(0, 0);
 
@@ -18,9 +18,7 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 	cv::addWeighted(cropedRImg, 1.5, gauBGR, -0.7, 0.0, EnHBGR); //(1.5, -0.7)
 
 	Mat Kop;
-	
-	
-	
+
 	if (thresParm.thresmode == 3)
 	{		
 		Kop = KmeanOP(2, EnHBGR);
@@ -38,7 +36,6 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		double minVal, maxVal; //maxVal: frequency
 		Point minLoc, maxLoc; //maxLoc.y: pixel value
 		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		//std::cout << "calculate min Loc is:: " << minLoc.y << " / " << maxLoc.y << " / " << minVal << " / " << maxVal << endl;
 		threshold(Kop, thresimg, maxVal - 1, 255, THRESH_BINARY);
 		cv::medianBlur(thresimg, thresimg, 5);		
 	}
@@ -49,11 +46,8 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		double minVal, maxVal; //maxVal: frequency
 		Point minLoc, maxLoc; //maxLoc.y: pixel value
 		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		//std::cout << "calculate min Loc is:: " << minLoc.y << " / " << maxLoc.y << " / " << minVal << " / " << maxVal << endl;
-		//threshold(Kop, drakfiled, minVal+1, 255, THRESH_BINARY_INV);
 		threshold(Kop, brightfield, maxVal-1, 255, THRESH_BINARY);
 		cv::medianBlur(brightfield, thresimg, 5);
-		//bitwise_or(drakfiled, brightfield, thresimg);
 	}
 	else
 	{
@@ -61,7 +55,6 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		double minVal, maxVal; //maxVal: frequency
 		Point minLoc, maxLoc; //maxLoc.y: pixel value
 		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		//std::cout << "calculate min Loc is:: " << minLoc.y << " / " << maxLoc.y << " / " << minVal << " / " << maxVal << endl;
 		threshold(Kop, thresimg, minVal + 1, 255, THRESH_BINARY_INV);
 		cv::medianBlur(thresimg, thresimg, 5);
 	}
@@ -172,7 +165,7 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 #pragma region STEP2_4by4check 
 
 
-std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Potchip, SettingP chipsetting, vector<Point> TDcnt)
+std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Potchip, SettingP_ chipsetting, vector<Point> TDcnt)
 {
 	Point finechip = Point(0, 0);
 	Point IMGoffset = Point(0, 0);
@@ -269,11 +262,6 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 		std::cout << message << std::endl;
 
 	}
-
-
-
-
-	
 
 	return{ boolflag ,Grayimg,markimg };
 }

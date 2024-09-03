@@ -21,6 +21,15 @@
     <ClInclude Include="pch.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="AOILib_ALLTECMT1.4by4Check.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="..\4by4Check_Main\Check4by4Chip_lib.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -29,5 +38,19 @@
     <ClCompile Include="pch.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="AOILib_ALLTECMT1.4by4Check.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="..\4by4Check_Main\Check4by4Chip_lib.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="..\4by4Check_Main\GeneralFunction_V1.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AOILib_ALLTECMT1.4by4Check.rc">
+      <Filter>資源檔</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
