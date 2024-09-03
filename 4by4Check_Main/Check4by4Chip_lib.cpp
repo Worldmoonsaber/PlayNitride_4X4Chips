@@ -1,17 +1,10 @@
 #include "Check4by4Chip_lib.h"
 
 
-#pragma region STEP1_roughlysearch 
 
-std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX)
+void funcCreateKmeanThresImg(thresP_ thresParm,Mat& cropedRImg ,Mat& thresimg)
 {
-	Point potentialchip = Point(0, 0);
-
-
-	/*sub-function start*/
-			//Input: cropedRImg
-
-	Mat gauBGR, EnHBGR, thresimg;
+	Mat gauBGR, EnHBGR;
 	cv::cvtColor(cropedRImg, cropedRImg, cv::COLOR_BGR2GRAY);
 	cropedRImg.convertTo(cropedRImg, -1, 1.2, 0);
 	cv::GaussianBlur(cropedRImg, gauBGR, Size(0, 0), 13);
@@ -20,24 +13,24 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 	Mat Kop;
 
 	if (thresParm.thresmode == 3)
-	{		
+	{
 		Kop = KmeanOP(2, EnHBGR);
 		double minVal, maxVal; //maxVal: frequency
 		Point minLoc, maxLoc; //maxLoc.y: pixel value
 		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
 		//std::cout << "calculate min Loc is:: " << minLoc.y << " / " << maxLoc.y << " / " << minVal << " / " << maxVal << endl;
-		threshold(Kop, thresimg, minVal+1, 255, THRESH_BINARY_INV);
+		threshold(Kop, thresimg, minVal + 1, 255, THRESH_BINARY_INV);
 		cv::medianBlur(thresimg, thresimg, 5);
 	}
 
 	else if (thresParm.thresmode == 4)
-	{		
+	{
 		Kop = KmeanOP(2, EnHBGR);
 		double minVal, maxVal; //maxVal: frequency
 		Point minLoc, maxLoc; //maxLoc.y: pixel value
 		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
 		threshold(Kop, thresimg, maxVal - 1, 255, THRESH_BINARY);
-		cv::medianBlur(thresimg, thresimg, 5);		
+		cv::medianBlur(thresimg, thresimg, 5);
 	}
 	else if (thresParm.thresmode == 0)
 	{
@@ -46,8 +39,11 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		double minVal, maxVal; //maxVal: frequency
 		Point minLoc, maxLoc; //maxLoc.y: pixel value
 		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		threshold(Kop, brightfield, maxVal-1, 255, THRESH_BINARY);
+		threshold(Kop, brightfield, maxVal - 1, 255, THRESH_BINARY);
 		cv::medianBlur(brightfield, thresimg, 5);
+
+		drakfiled.release();
+		brightfield.release();
 	}
 	else
 	{
@@ -59,6 +55,23 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		cv::medianBlur(thresimg, thresimg, 5);
 	}
 
+	Kop.release();
+	gauBGR.release();
+	EnHBGR.release();
+}
+
+
+#pragma region STEP1_roughlysearch 
+
+std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX)
+{
+	Point potentialchip = Point(0, 0);
+
+
+	/*sub-function start*/
+			//Input: cropedRImg
+	Mat thresimg;
+	funcCreateKmeanThresImg(thresParm, cropedRImg, thresimg);
 
 	vector<vector<Point>> contthres;
 	vector<vector<Point>> potCNT;
@@ -67,10 +80,9 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 	vector<double>potDist;
 
 
+
 	Mat upscaleImg = Mat::zeros(thresimg.size(), CV_8UC1);
 	Mat potentialIMG = Mat::zeros(thresimg.size(), CV_8UC1);
-
-	
 
 	cv::findContours(thresimg, contthres, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
 	Point2f piccenter = find_piccenter(thresimg);
@@ -85,8 +97,6 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		}
 		else
 		{
-
-
 			for (int i = 0; i < contthres.size(); i++)
 			{
 				Rect bx = boundingRect(contthres[i]);
@@ -94,8 +104,6 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 				if (bx.width * bx.height< (resizeTDwidth * resizeTDheight * 1.4) &&
 					bx.width * bx.height >(resizeTDwidth * resizeTDheight * 0.5) ) //theta=3
 				{
-										
-
 					Moments M = (moments(contthres[i], false));
 					Point2f Mpt = (Point2f((M.m10 / M.m00), (M.m01 / M.m00)));
 					potCNT.push_back(contthres[i]);
@@ -165,7 +173,7 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 #pragma region STEP2_4by4check 
 
 
-std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Potchip, SettingP_ chipsetting, vector<Point> TDcnt)
+std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Ref_chip_Pos, SettingP_ chipsetting, vector<Point> TDcnt)
 {
 	Point finechip = Point(0, 0);
 	Point IMGoffset = Point(0, 0);
@@ -180,7 +188,7 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 	Rect patternmodel = boundingRect(TDcnt);
 	Mat bitAndImg;
 	vector<vector<Point>> Cntchip;
-	Point leftopPt = Potchip - Point(2 * resizedpitchX, 2 * resizedpitchY);
+	Point leftopPt = Ref_chip_Pos - Point(2 * resizedpitchX, 2 * resizedpitchY);
 
 	
 	try
@@ -220,7 +228,7 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 					Rect bx=cv::boundingRect(Cntchip[i]);
 					cv::circle(markimg, Point(bx.x + 0.5 * bx.width, bx.y + bx.height * 0.5), 3, Scalar(0, 0, 255), -1);
 				}
-				cv::circle(markimg, Potchip, 3, Scalar(255, 0, 0), -1);
+				cv::circle(markimg, Ref_chip_Pos, 3, Scalar(255, 0, 0), -1);
 				cv::resize(markimg, markimg, Size(500, 500));
 				cv::resize(thresimg, Grayimg, Size(500, 500));
 			}
@@ -230,7 +238,7 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 				{
 					boolflag = 2;
 					
-					cv::circle(markimg, Potchip, 3, Scalar(255, 0, 0), -1);
+					cv::circle(markimg, Ref_chip_Pos, 3, Scalar(255, 0, 0), -1);
 					cv::resize(markimg, markimg, Size(500, 500));
 					cv::resize(thresimg, Grayimg, Size(500, 500));
 					throw "please Tune pitch";
@@ -243,7 +251,7 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 						Rect bx = cv::boundingRect(Cntchip[i]);
 						cv::circle(markimg, Point(bx.x + 0.5 * bx.width, bx.y + bx.height * 0.5), 3, Scalar(0, 0, 255), -1);
 					}
-					cv::circle(markimg, Potchip, 3, Scalar(255, 0, 0), -1);
+					cv::circle(markimg, Ref_chip_Pos, 3, Scalar(255, 0, 0), -1);
 					cv::resize(markimg, markimg, Size(500, 500));
 					cv::resize(thresimg, Grayimg, Size(500, 500));
 					throw "please select another area";
