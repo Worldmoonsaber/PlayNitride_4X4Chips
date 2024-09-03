@@ -30,17 +30,10 @@ int main()
 	/////////////////////////////////////////
 	Mat rawimg, cropedRImg;
 	int picorder;
-	Point piccenter;
-	Point IMGoffset;
-	Point2f creteriaPoint;
 
-	//output parameters::
-	Mat ReqIMG, marksize;
-	Point simupt;
 	int boolflag = 0;//11
 
-	Point Finechip;
-	Mat Grayimg, markimg;
+	Mat Grayimg;
 
 
 	Mat markimg_simu;
@@ -105,49 +98,20 @@ int main()
 		chipsetting.ypitch[0] = 300;
 	}
 
-
-	//  ? dll 會發生這種錯誤 ????
 	if (imageParm.cols != rawimg.cols || imageParm.rows != rawimg.rows)
 	{
 		boolflag == 7;
 		rawimg.copyTo(markimg_simu);
-		Grayimg = Mat::zeros(Size(600, 500), CV_8UC1);
+		Grayimg = Mat::zeros(Size(500, 500), CV_8UC1);
 	}
 
 	if (boolflag == 0)
 	{
-		creteriaPoint = find_piccenter(rawimg);
-
-		/*****Step.1 roughly search chip:::*/
-		/*Resize image to speed up::start*/
-		double resizeTDwidth = target.TDwidth / 12;
-		double resizeTDheight = target.TDheight / 12;
-		std::cout << "calculate resize TD dimension is:: " << resizeTDwidth << " / " << resizeTDheight << endl;
-		cv::resize(rawimg, cropedRImg, Size(int(rawimg.cols / 12), int(rawimg.rows / 12)), INTER_NEAREST);
-
-		auto t_start2 = std::chrono::high_resolution_clock::now();
-
-		Point Potchip;
-		Mat thresimg;
-		vector<Point> TDcnt;
-		std::tie(Potchip, boolflag, thresimg, TDcnt) = potentialchipSearch_V1(cropedRImg, resizeTDwidth, resizeTDheight, target, thresParm, boolflag, chipsetting.interval[0]);
-
-		auto t_end2 = std::chrono::high_resolution_clock::now();
-		double elapsed_time_ms2 = std::chrono::duration<double, std::milli>(t_end2 - t_start2).count();
-		std::cout << "calculate roughly-search-op time is:: " << elapsed_time_ms2 << endl;
-
-		if (boolflag == 0)
-		{
-			std::tie(boolflag, Grayimg, markimg_simu) = check4by4_V1(cropedRImg, thresimg, boolflag, Potchip, chipsetting, TDcnt);
-		}
-		else
-		{
-			cv::resize(rawimg, markimg_simu, Size(500, 500), INTER_NEAREST);
-			cv::resize(thresimg, Grayimg, Size(500, 500), INTER_NEAREST);
-		}
-
+		funCheck4x4(rawimg, cropedRImg, thresParm, chipsetting, target, boolflag, Grayimg, markimg_simu);
 	}
 
+	rawimg.release();
+	cropedRImg.release();
 	std::cout << "check img state:: " << boolflag << endl;
 	return 0;
 }

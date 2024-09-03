@@ -70,12 +70,8 @@ Mat CropIMG(Mat img, Rect size);
 Mat KmeanOP(int knum, Mat src);
 
 
-
-
-
-
 std::tuple<Point, int,Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX);
 std::tuple< int, Mat, Mat> check4by4_V1(Mat src, Mat thresimg, int boolflag, Point Potchip, SettingP_ chipsetting, vector<Point> TDcnt);
 
-
+void funCheck4x4(Mat rawimg, Mat cropedRImg, thresP_ thresParm, SettingP_ chipsetting, sizeTD_ target, int& boolflag, Mat& Grayimg, Mat& markimg_simu);
 #pragma endregion
