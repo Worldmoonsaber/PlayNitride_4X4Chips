@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\4by4Check_Main\Check4by4Chip_lib.h" />
+    <ClInclude Include="..\4by4Check_Main\OpenCV_Extension_Tool.h" />
     <ClInclude Include="AOILib_ALLTECMT1.4by4Check.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
@@ -152,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="..\4by4Check_Main\Check4by4Chip_lib.cpp" />
     <ClCompile Include="..\4by4Check_Main\GeneralFunction_V1.cpp" />
+    <ClCompile Include="..\4by4Check_Main\OpenCV_Extension_Tool.cpp" />
     <ClCompile Include="AOILib_ALLTECMT1.4by4Check.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="pch.cpp">

@@ -1,4 +1,5 @@
 #include "Check4by4Chip_lib.h"
+#include "OpenCV_Extension_Tool.h"
 
 
 
@@ -67,103 +68,61 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 {
 	Point potentialchip = Point(0, 0);
 
-
-	/*sub-function start*/
-			//Input: cropedRImg
 	Mat thresimg;
 	funcCreateKmeanThresImg(thresParm, cropedRImg, thresimg);
-
-	vector<vector<Point>> contthres;
-	vector<vector<Point>> potCNT;
+	cropedRImg.release();
 	vector<Point> TDCNT;
-	vector<Point2f> potPT;
-	vector<double>potDist;
-
-
-
-	Mat upscaleImg = Mat::zeros(thresimg.size(), CV_8UC1);
-	Mat potentialIMG = Mat::zeros(thresimg.size(), CV_8UC1);
-
-	cv::findContours(thresimg, contthres, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
+	vector<BlobInfo> vChips = RegionPartition(thresimg, resizeTDwidth * resizeTDheight * 1.4, resizeTDwidth * resizeTDheight * 0.5);
 	Point2f piccenter = find_piccenter(thresimg);
 
 	try
 	{
-		if (contthres.size() == 0)
+		if (vChips.size() == 0)
 		{
 			flag = 1;
-			thresimg.copyTo(potentialIMG);
-			throw "something wrong::thresholdmode value issue";
+			return{ potentialchip,flag,thresimg,TDCNT };
 		}
 		else
 		{
-			for (int i = 0; i < contthres.size(); i++)
-			{
-				Rect bx = boundingRect(contthres[i]);
-														
-				if (bx.width * bx.height< (resizeTDwidth * resizeTDheight * 1.4) &&
-					bx.width * bx.height >(resizeTDwidth * resizeTDheight * 0.5) ) //theta=3
+			std::sort(vChips.begin(), vChips.end(), [&, piccenter](BlobInfo& a, BlobInfo& b)
 				{
-					Moments M = (moments(contthres[i], false));
-					Point2f Mpt = (Point2f((M.m10 / M.m00), (M.m01 / M.m00)));
-					potCNT.push_back(contthres[i]);
-					potPT.push_back(Mpt);
-					potDist.push_back((norm(piccenter - potPT[potPT.size() - 1])));
-					cv::drawContours(potentialIMG, contthres, i, Scalar::all(255), -1);
-					//cout << "check potential center"<<endl;
-				}
-			}
+					norm(a.Center() - piccenter);
+					return norm(a.Center() - piccenter) < norm(b.Center() - piccenter);
+				});
 
-
-			cout << "check potCNT.size() is : " << potCNT.size() << endl;
-
-
-			if (potDist.size() <16) //4*4=16
+			if (vChips.size() <16) //4*4=16
 			{
 				flag = 1;
-				thresimg.copyTo(potentialIMG);
-				throw "something wrong::thresholdmode value issue";
+				return{ potentialchip,flag,thresimg,TDCNT };
 			}
 			else
 			{
-				auto chipiter = std::min_element(potDist.begin(), potDist.end());
-				int chipIndex = std::distance(potDist.begin(), chipiter);
-				TDCNT = potCNT[chipIndex];
-				//cout << "check potential center is : " << potPT[chipIndex]  << "[ "<< piccenter<<" ]" << endl;
-
-				circle(upscaleImg, potPT[chipIndex], 3, Scalar::all(255), -1);
-				//circle(thresimg, piccenter, 1, Scalar::all(150), -1);
-				cv::resize(upscaleImg, upscaleImg, Size(int(thresimg.cols * 12), int(thresimg.rows * 12)), INTER_NEAREST);
-
-				cv::findContours(upscaleImg, contthres, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point());
-
-				Moments M1 = (moments(contthres[0], false));
-				Point potentialchipFullfield = Point2i((Point2f((M1.m10 / M1.m00), (M1.m01 / M1.m00))));
+				TDCNT = vChips[0].contour();
+				Point potentialchipFullfield = Point2i(vChips[0].Center().x*12, vChips[0].Center().y*12);
 				cout << "check tdpt(full img) is : " << potentialchipFullfield << endl;
 
-				if (norm(potentialchipFullfield - Point2i(upscaleImg.cols * 0.5, upscaleImg.rows * 0.5)) > distPX)
+				if (norm(potentialchipFullfield - Point2i(thresimg.cols * 6, thresimg.rows * 6)) > distPX)
 				{
 					flag = 6;
-					potentialchip = potPT[chipIndex];
+					potentialchip = vChips[0].Center();
 				}
 				else
 				{
 					flag = 0;
-					potentialchip = potPT[chipIndex];
+					potentialchip = vChips[0].Center();
 				}
 			}
 		}
 
 	}
-
 	catch (const char* message)
 	{
 		std::cout << message << std::endl;
-
 	}
 
-	
-	return{ potentialchip,flag,potentialIMG,TDCNT };
+	vChips.clear();
+
+	return{ potentialchip,flag,thresimg,TDCNT };
 }
 
 #pragma endregion STEP1_roughlysearch 
@@ -281,7 +240,7 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 
 #pragma region «Ê¸Ë
 
-void funCheck4x4(Mat rawimg, Mat cropedRImg, thresP_ thresParm, SettingP_ chipsetting,sizeTD_ target,int& boolflag,Mat& Grayimg,Mat& markimg_simu)
+void funCheck4x4(Mat& rawimg, Mat& cropedRImg, thresP_ thresParm, SettingP_ chipsetting,sizeTD_ target,int& boolflag,Mat& Grayimg,Mat& markimg_simu)
 {
 
 	/*****Step.1 roughly search chip:::*/

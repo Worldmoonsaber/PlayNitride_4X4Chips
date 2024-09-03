@@ -30,6 +30,9 @@
     <ClInclude Include="resource.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="..\4by4Check_Main\OpenCV_Extension_Tool.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -45,6 +48,9 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="..\4by4Check_Main\GeneralFunction_V1.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="..\4by4Check_Main\OpenCV_Extension_Tool.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

@@ -133,12 +133,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Check4by4Chip_lib.h" />
+    <ClInclude Include="OpenCV_Extension_Tool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Check4by4Chip_Main.cpp" />
     <ClCompile Include="GeneralFunction_V1.cpp" />
     <ClCompile Include="Inputfunction.cpp" />
     <ClCompile Include="Check4by4Chip_lib.cpp" />
+    <ClCompile Include="OpenCV_Extension_Tool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
