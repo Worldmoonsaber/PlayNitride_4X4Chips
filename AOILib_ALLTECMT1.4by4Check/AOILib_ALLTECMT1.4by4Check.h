@@ -1,6 +1,7 @@
 #pragma once
+#include "../4by4Check_Main/AoiLibrary.h"
 
-
+/*
 
 typedef struct
 {
@@ -43,7 +44,7 @@ typedef struct
 	double correctTheta;
 }ImgP;
 
-
+*/
 
 __declspec(dllexport)  void Uchips_4by4check(thresP thresParm, ImgP imageParm, SettingP chipsetting, sizeTD target, unsigned int* imageIN,
 						unsigned int* imageOUT, unsigned char* imageGray, float boolResult[], float outputLEDX[], float outputLEDY[]);

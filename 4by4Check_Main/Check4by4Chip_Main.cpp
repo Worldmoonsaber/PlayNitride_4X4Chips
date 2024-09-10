@@ -4,10 +4,10 @@
 
 int main()
 {
-	SettingP_ chipsetting;
-	thresP_ thresParm;
-	ImgP_ imageParm;
-	sizeTD_ target;
+	SettingP chipsetting;
+	thresP thresParm;
+	ImgP imageParm;
+	sizeTD target;
 
 	imageParm.cols = 5320; //800 ;900-1600
 	imageParm.rows = 4600;

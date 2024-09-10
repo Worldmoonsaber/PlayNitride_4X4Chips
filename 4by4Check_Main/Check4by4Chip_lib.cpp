@@ -1,70 +1,10 @@
 #include "Check4by4Chip_lib.h"
-#include "OpenCV_Extension_Tool.h"
 
-
-
-void funcCreateKmeanThresImg(thresP_ thresParm,Mat& cropedRImg ,Mat& thresimg)
-{
-	Mat gauBGR, EnHBGR;
-	cv::cvtColor(cropedRImg, cropedRImg, cv::COLOR_BGR2GRAY);
-	cropedRImg.convertTo(cropedRImg, -1, 1.2, 0);
-	cv::GaussianBlur(cropedRImg, gauBGR, Size(0, 0), 13);
-	cv::addWeighted(cropedRImg, 1.5, gauBGR, -0.7, 0.0, EnHBGR); //(1.5, -0.7)
-
-	Mat Kop;
-
-	if (thresParm.thresmode == 3)
-	{
-		Kop = KmeanOP(2, EnHBGR);
-		double minVal, maxVal; //maxVal: frequency
-		Point minLoc, maxLoc; //maxLoc.y: pixel value
-		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		//std::cout << "calculate min Loc is:: " << minLoc.y << " / " << maxLoc.y << " / " << minVal << " / " << maxVal << endl;
-		threshold(Kop, thresimg, minVal + 1, 255, THRESH_BINARY_INV);
-		cv::medianBlur(thresimg, thresimg, 5);
-	}
-
-	else if (thresParm.thresmode == 4)
-	{
-		Kop = KmeanOP(2, EnHBGR);
-		double minVal, maxVal; //maxVal: frequency
-		Point minLoc, maxLoc; //maxLoc.y: pixel value
-		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		threshold(Kop, thresimg, maxVal - 1, 255, THRESH_BINARY);
-		cv::medianBlur(thresimg, thresimg, 5);
-	}
-	else if (thresParm.thresmode == 0)
-	{
-		Mat drakfiled, brightfield;
-		Kop = KmeanOP(3, EnHBGR);
-		double minVal, maxVal; //maxVal: frequency
-		Point minLoc, maxLoc; //maxLoc.y: pixel value
-		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		threshold(Kop, brightfield, maxVal - 1, 255, THRESH_BINARY);
-		cv::medianBlur(brightfield, thresimg, 5);
-
-		drakfiled.release();
-		brightfield.release();
-	}
-	else
-	{
-		Kop = KmeanOP(2, EnHBGR);
-		double minVal, maxVal; //maxVal: frequency
-		Point minLoc, maxLoc; //maxLoc.y: pixel value
-		minMaxLoc(Kop, &minVal, &maxVal, &minLoc, &maxLoc);
-		threshold(Kop, thresimg, minVal + 1, 255, THRESH_BINARY_INV);
-		cv::medianBlur(thresimg, thresimg, 5);
-	}
-
-	Kop.release();
-	gauBGR.release();
-	EnHBGR.release();
-}
 
 
 #pragma region STEP1_roughlysearch 
 
-std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX)
+std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD target, thresP thresParm, int flag, double distPX)
 {
 	Point potentialchip = Point(0, 0);
 
@@ -131,8 +71,7 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 
 #pragma region STEP2_4by4check 
 
-
-std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Ref_chip_Pos, SettingP_ chipsetting, vector<Point> TDcnt)
+std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Ref_chip_Pos, SettingP chipsetting, vector<Point> TDcnt)
 {
 	Point finechip = Point(0, 0);
 	Point IMGoffset = Point(0, 0);
@@ -233,14 +172,11 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 	return{ boolflag ,Grayimg,markimg };
 }
 
-
 #pragma endregion STEP2_4by4check 
-
-
 
 #pragma region «Ê¸Ë
 
-void funCheck4x4(Mat& rawimg, Mat& cropedRImg, thresP_ thresParm, SettingP_ chipsetting,sizeTD_ target,int& boolflag,Mat& Grayimg,Mat& markimg_simu)
+void funCheck4x4(Mat& rawimg, Mat& cropedRImg, thresP thresParm, SettingP chipsetting,sizeTD target,int& boolflag,Mat& Grayimg,Mat& markimg_simu)
 {
 
 	/*****Step.1 roughly search chip:::*/

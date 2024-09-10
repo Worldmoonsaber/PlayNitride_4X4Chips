@@ -30,7 +30,7 @@
     <ClInclude Include="resource.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="..\4by4Check_Main\OpenCV_Extension_Tool.h">
+    <ClInclude Include="..\4by4Check_Main\AoiLibrary.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
@@ -45,12 +45,6 @@
       <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="..\4by4Check_Main\Check4by4Chip_lib.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
-    <ClCompile Include="..\4by4Check_Main\GeneralFunction_V1.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
-    <ClCompile Include="..\4by4Check_Main\OpenCV_Extension_Tool.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

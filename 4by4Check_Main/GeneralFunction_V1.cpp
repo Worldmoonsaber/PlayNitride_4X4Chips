@@ -2,7 +2,7 @@
 #include "Check4by4Chip_lib.h"
 
 #pragma region General_function
-
+/*
 
 Point find_piccenter(Mat src) {
 	int piccenterx = int(src.size().width * 0.5);
@@ -93,7 +93,7 @@ Mat KmeanOP(int knum, Mat src)
 
 	return NewIMG;
 }
-
+*/
 # pragma endregion
 
 
