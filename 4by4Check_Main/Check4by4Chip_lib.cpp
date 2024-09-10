@@ -10,9 +10,22 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 
 	Mat thresimg;
 	funcCreateKmeanThresImg(thresParm, cropedRImg, thresimg);
-	cropedRImg.release();
 	vector<Point> TDCNT;
 	vector<BlobInfo> vChips = RegionPartition(thresimg, resizeTDwidth * resizeTDheight * 1.4, resizeTDwidth * resizeTDheight * 0.5);
+	thresimg.release();
+
+	vector<vector<Point>> vContour;
+
+	for (int i = 0; i < vChips.size(); i++)
+		vContour.push_back(vChips[i].contourMain());
+
+	thresimg = Mat(cropedRImg.size(), CV_8UC1);
+	cropedRImg.release();
+
+
+	drawContours(thresimg, vContour, -1, Scalar(255, 255, 255),-1);
+
+
 	Point2f piccenter = find_piccenter(thresimg);
 
 	try
