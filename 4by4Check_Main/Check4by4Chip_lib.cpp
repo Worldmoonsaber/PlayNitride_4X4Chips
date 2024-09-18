@@ -70,11 +70,44 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 
 	Mat thresimg;
 	funcCreateKmeanThresImg(thresParm, cropedRImg, thresimg);
-	cropedRImg.release();
 	vector<Point> TDCNT;
-	vector<BlobInfo> vChips = RegionPartition(thresimg, resizeTDwidth * resizeTDheight * 1.4, resizeTDwidth * resizeTDheight * 0.5);
+	vector<BlobInfo> vChipPossible = RegionPartitionTopology(thresimg);
+	vector<BlobInfo> vChips;
+
+	//resizeTDwidth * resizeTDheight * 1.4, resizeTDwidth * resizeTDheight * 0.5
 	Point2f piccenter = find_piccenter(thresimg);
 
+	thresimg = Mat::zeros(cropedRImg.size(), CV_8UC1);
+	cropedRImg.release();
+
+	vector<vector<Point>> vContour;
+
+
+	for (int i = 0; i < vChipPossible.size(); i++)
+	{
+		if (vChipPossible[i].Width() > resizeTDwidth*1.5)
+			continue;
+
+		if (vChipPossible[i].Width() < resizeTDwidth * 0.7)
+			continue;
+
+
+		if (vChipPossible[i].Height() > resizeTDheight * 1.5)
+			continue;
+
+		if (vChipPossible[i].Height() < resizeTDheight * 0.7)
+			continue;
+
+
+		if (vChipPossible[i].Rectangularity() < 0.7)
+			continue;
+	
+		vChips.push_back(vChipPossible[i]);
+		vContour.push_back(vChipPossible[i].contourMain());
+	}
+
+
+	drawContours(thresimg, vContour, -1, Scalar(255, 255, 255), -1);
 	try
 	{
 		if (vChips.size() == 0)
