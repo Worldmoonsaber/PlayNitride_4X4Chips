@@ -12,7 +12,7 @@ int main()
 	imageParm.cols = 5320; //800 ;900-1600
 	imageParm.rows = 4600;
 
-	chipsetting.interval[0] = 200;
+	chipsetting.interval[0] = 500;
 	//chipsetting.interval[1] = 176; //490
 	//chipsetting.interval[2] = 114; //273 
 
@@ -41,7 +41,9 @@ int main()
 	// Image source input: IMG format:RGB
 	try
 	{
-		std::tie(picorder, rawimg) = Inputfunction();
+		//std::tie(picorder, rawimg) = Inputfunction();
+
+		rawimg = imread("C:\\Users\\Playuser\\Downloads\\1004\\1004\\BadImg.bmp");
 
 		if (rawimg.empty())
 		{
@@ -58,6 +60,7 @@ int main()
 
 	}//catch loop
 
+	//rawimg = imread();
 
 	target.TDmaxW = 1.3;
 	target.TDminW = 0.7;
@@ -66,37 +69,41 @@ int main()
 	target.TDmaxH = 1.3;
 	target.TDminH = 0.7;
 
+	target.TDwidth = 192;
+	target.TDheight = 350;
+
+	//if (picorder > 132800 && picorder < 132899)
+	//{
 
 
-	if (picorder > 132800 && picorder < 132899)
-	{
-
-		target.TDwidth = 265;
-		target.TDheight = 124;
 		thresParm = { 3,{99999,99999,99999},{99999,99999,99999} ,{3,99999,99999}, {99999,99999,99999} };//pic24052202
-		chipsetting.xpitch[0] = 343;
-		chipsetting.ypitch[0] = 230;
-	}
-	else if (picorder > 153000 && picorder < 153099)
-	{
 
-		target.TDwidth = 135;
-		target.TDheight = 120;
-		//thresParm = { 4,{111,99999,99999},{99999,99999,99999} ,{13,99999,99999}, {99999,99999,99999} };//pic24052202
-		thresParm = { 0,{99999,99999,99999},{0,99999,99999} ,{255,99999,99999}, {180,99999,99999} };//pic153002
-		chipsetting.xpitch[0] = 508;
-		chipsetting.ypitch[0] = 340;
-	}
-	else if (picorder > 183600 && picorder < 183699)
-	{
+		thresParm.thresmode = 3;
+		thresParm.bgmax[0] = 100;
+		thresParm.fgmax[0] = 1;
+		chipsetting.xpitch[0] = 318;
+		chipsetting.ypitch[0] = 552;
+	//}
+	//else if (picorder > 153000 && picorder < 153099)
+	//{
 
-		target.TDwidth = 301;
-		target.TDheight = 153;
-		//thresParm = { 4,{111,99999,99999},{99999,99999,99999} ,{13,99999,99999}, {99999,99999,99999} };//pic24052202
-		thresParm = { 3,{99999,99999,99999},{0,99999,99999} ,{255,99999,99999}, {180,99999,99999} };//pic153002
-		chipsetting.xpitch[0] = 513;
-		chipsetting.ypitch[0] = 300;
-	}
+	//	target.TDwidth = 135;
+	//	target.TDheight = 120;
+	//	//thresParm = { 4,{111,99999,99999},{99999,99999,99999} ,{13,99999,99999}, {99999,99999,99999} };//pic24052202
+	//	thresParm = { 0,{99999,99999,99999},{0,99999,99999} ,{255,99999,99999}, {180,99999,99999} };//pic153002
+	//	chipsetting.xpitch[0] = 508;
+	//	chipsetting.ypitch[0] = 340;
+	//}
+	//else if (picorder > 183600 && picorder < 183699)
+	//{
+
+	//	target.TDwidth = 301;
+	//	target.TDheight = 153;
+	//	//thresParm = { 4,{111,99999,99999},{99999,99999,99999} ,{13,99999,99999}, {99999,99999,99999} };//pic24052202
+	//	thresParm = { 3,{99999,99999,99999},{0,99999,99999} ,{255,99999,99999}, {180,99999,99999} };//pic153002
+	//	chipsetting.xpitch[0] = 513;
+	//	chipsetting.ypitch[0] = 300;
+	//}
 
 	if (imageParm.cols != rawimg.cols || imageParm.rows != rawimg.rows)
 	{
@@ -109,6 +116,8 @@ int main()
 	{
 		funCheck4x4(rawimg, cropedRImg, thresParm, chipsetting, target, boolflag, Grayimg, markimg_simu);
 	}
+
+
 
 	rawimg.release();
 	cropedRImg.release();

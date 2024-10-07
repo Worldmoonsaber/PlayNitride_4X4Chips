@@ -2,8 +2,7 @@
 #include "OpenCV_Extension_Tool.h"
 
 
-
-void funcCreateKmeanThresImg(thresP_ thresParm,Mat& cropedRImg ,Mat& thresimg)
+void funcCreateKmeanThresImg(thresP_ thresParm,Mat cropedRImg ,Mat& thresimg)
 {
 	Mat gauBGR, EnHBGR;
 	cv::cvtColor(cropedRImg, cropedRImg, cv::COLOR_BGR2GRAY);
@@ -64,50 +63,115 @@ void funcCreateKmeanThresImg(thresP_ thresParm,Mat& cropedRImg ,Mat& thresimg)
 
 #pragma region STEP1_roughlysearch 
 
+
 std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg, double resizeTDwidth, double resizeTDheight, sizeTD_ target, thresP_ thresParm, int flag, double distPX)
 {
+	float ratio = 10;
 	Point potentialchip = Point(0, 0);
 
 	Mat thresimg;
+
 	funcCreateKmeanThresImg(thresParm, cropedRImg, thresimg);
+
+
+	//----------使用色彩過濾
 	vector<Point> TDCNT;
 	vector<BlobInfo> vChipPossible = RegionPartitionTopology(thresimg);
 	vector<BlobInfo> vChips;
+	vector<BlobInfo> vChipsNeedFilterSecondTime;
 
-	//resizeTDwidth * resizeTDheight * 1.4, resizeTDwidth * resizeTDheight * 0.5
+
 	Point2f piccenter = find_piccenter(thresimg);
 
 	thresimg = Mat::zeros(cropedRImg.size(), CV_8UC1);
-	cropedRImg.release();
+	//cropedRImg.release();
 
 	vector<vector<Point>> vContour;
 
+	float std_Aspect = 0;
+
+	if (target.TDheight > target.TDwidth)
+		std_Aspect = target.TDheight / target.TDwidth;
+	else
+		std_Aspect = target.TDwidth / target.TDheight;
+
+	float max_MeasuredH = -1, max_MeasuredW = -1, min_MeasuredH = 5000, min_MeasuredW = 5000;
 
 	for (int i = 0; i < vChipPossible.size(); i++)
 	{
-		if (vChipPossible[i].Width() > resizeTDwidth*1.5)
+		if (std_Aspect * 2 < vChipPossible[i].AspectRatio())
 			continue;
 
-		if (vChipPossible[i].Width() < resizeTDwidth * 0.7)
-			continue;
-
-
-		if (vChipPossible[i].Height() > resizeTDheight * 1.5)
-			continue;
-
-		if (vChipPossible[i].Height() < resizeTDheight * 0.7)
+		if (std_Aspect * 0.5 > vChipPossible[i].AspectRatio())
 			continue;
 
 
-		if (vChipPossible[i].Rectangularity() < 0.7)
+		if (vChipPossible[i].Center().x< resizeTDwidth * 0.5 || vChipPossible[i].Center().x>cropedRImg.size().width - resizeTDwidth * 0.5)
 			continue;
-	
-		vChips.push_back(vChipPossible[i]);
-		vContour.push_back(vChipPossible[i].contourMain());
+
+		if (vChipPossible[i].Center().y< resizeTDheight * 0.5 || vChipPossible[i].Center().y>cropedRImg.size().height - resizeTDheight * 0.5)
+			continue;
+
+		if (vChipPossible[i].Width() > resizeTDwidth * target.TDmaxW)
+			continue;
+
+		if (vChipPossible[i].Width() < resizeTDwidth * target.TDminW)
+			continue;
+
+
+		if (vChipPossible[i].Height() > resizeTDheight * target.TDmaxH)
+			continue;
+
+		if (vChipPossible[i].Height() < resizeTDheight * target.TDminH)
+			continue;
+
+
+		if (vChipPossible[i].Rectangularity() < 0.5)
+			continue;//絕對不可能是Chip
+
+		if (vChipPossible[i].Rectangularity() >= 0.8) //方正度高 絕對是Chip 沒問題
+		{
+			if (vChipPossible[i].Width() > max_MeasuredW)
+				max_MeasuredW = vChipPossible[i].Width();
+
+			if (vChipPossible[i].Width() < min_MeasuredW)
+				min_MeasuredW = vChipPossible[i].Width();
+
+			if (vChipPossible[i].Height() > max_MeasuredH)
+				max_MeasuredH = vChipPossible[i].Height();
+
+			if (vChipPossible[i].Height() < min_MeasuredH)
+				min_MeasuredH = vChipPossible[i].Height();
+
+
+			vChips.push_back(vChipPossible[i]);
+			vContour.push_back(vChipPossible[i].contourMain());
+			continue;
+		}
+		else
+			vChipsNeedFilterSecondTime.push_back(vChipPossible[i]); //有可能是Chip 需要更多條件卡控
+
+
+	}
+
+	//----統計平均方正度
+
+	vector<BlobInfo> vChipsNeedFilterThirdTime;
+
+
+	for (int i = 0; i < vChipsNeedFilterSecondTime.size(); i++)
+	{
+		if (vChipsNeedFilterSecondTime[i].Width() > max_MeasuredW || vChipsNeedFilterSecondTime[i].Width() < min_MeasuredW
+			|| vChipsNeedFilterSecondTime[i].Height() > max_MeasuredH || vChipsNeedFilterSecondTime[i].Height() < min_MeasuredH)
+			continue;
+
+		vChips.push_back(vChipsNeedFilterSecondTime[i]);
+		vContour.push_back(vChipsNeedFilterSecondTime[i].contourMain());
 	}
 
 
 	drawContours(thresimg, vContour, -1, Scalar(255, 255, 255), -1);
+
 	try
 	{
 		if (vChips.size() == 0)
@@ -131,10 +195,10 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 			else
 			{
 				TDCNT = vChips[0].contour();
-				Point potentialchipFullfield = Point2i(vChips[0].Center().x*12, vChips[0].Center().y*12);
+				Point potentialchipFullfield = Point2i(vChips[0].Center().x* ratio, vChips[0].Center().y* ratio);
 				cout << "check tdpt(full img) is : " << potentialchipFullfield << endl;
 
-				if (norm(potentialchipFullfield - Point2i(thresimg.cols * 6, thresimg.rows * 6)) > distPX)
+				if (norm(potentialchipFullfield - Point2i(thresimg.cols * ratio/2, thresimg.rows * ratio /2)) > distPX)
 				{
 					flag = 6;
 					potentialchip = vChips[0].Center();
@@ -167,14 +231,15 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 
 std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Point Ref_chip_Pos, SettingP_ chipsetting, vector<Point> TDcnt)
 {
+	float ratio = 10;
 	Point finechip = Point(0, 0);
 	Point IMGoffset = Point(0, 0);
 	Mat Grayimg, markimg;
 	src.copyTo(markimg);
 
 	/*start......*/
-	double resizedpitchX = chipsetting.xpitch[0] / 12;
-	double resizedpitchY = chipsetting.ypitch[0] / 12;
+	double resizedpitchX = chipsetting.xpitch[0] / ratio;
+	double resizedpitchY = chipsetting.ypitch[0] / ratio;
 
 	Mat creteriaImg = Mat::zeros(thresimg.size(), CV_8UC1);
 	Rect patternmodel = boundingRect(TDcnt);
@@ -276,12 +341,14 @@ std::tuple< int, Mat, Mat> check4by4_V1(Mat src,Mat thresimg, int boolflag, Poin
 void funCheck4x4(Mat& rawimg, Mat& cropedRImg, thresP_ thresParm, SettingP_ chipsetting,sizeTD_ target,int& boolflag,Mat& Grayimg,Mat& markimg_simu)
 {
 
+
+	float ratio=10;
 	/*****Step.1 roughly search chip:::*/
 	/*Resize image to speed up::start*/
-	double resizeTDwidth = target.TDwidth / 12;
-	double resizeTDheight = target.TDheight / 12;
+	double resizeTDwidth = target.TDwidth / ratio;
+	double resizeTDheight = target.TDheight / ratio;
 	std::cout << "calculate resize TD dimension is:: " << resizeTDwidth << " / " << resizeTDheight << endl;
-	cv::resize(rawimg, cropedRImg, Size(int(rawimg.cols / 12), int(rawimg.rows / 12)), INTER_NEAREST);
+	cv::resize(rawimg, cropedRImg, Size(int(rawimg.cols / ratio), int(rawimg.rows / ratio)), INTER_NEAREST);
 	auto t_start2 = std::chrono::high_resolution_clock::now();
 
 	Point Potchip;

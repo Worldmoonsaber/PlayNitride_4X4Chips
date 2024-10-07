@@ -1,6 +1,6 @@
 
 #include "Check4by4Chip_lib.h"
-
+#pragma once
 #pragma region General_function
 
 
