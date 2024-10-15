@@ -43,7 +43,7 @@ int main()
 	{
 		//std::tie(picorder, rawimg) = Inputfunction();
 
-		rawimg = imread("C:\\Users\\Playuser\\Downloads\\1004\\1004\\BadImg.bmp");
+		rawimg = imread("C:\\Users\\Playuser\\Desktop\\¼È¦s\\20241011\\20241011_133702__exp(2800),gain(0),gamma(1.2),li(50).bmp");
 
 		if (rawimg.empty())
 		{
@@ -69,8 +69,8 @@ int main()
 	target.TDmaxH = 1.3;
 	target.TDminH = 0.7;
 
-	target.TDwidth = 192;
-	target.TDheight = 350;
+	target.TDwidth = 120;
+	target.TDheight = 90;
 
 	//if (picorder > 132800 && picorder < 132899)
 	//{
@@ -78,11 +78,11 @@ int main()
 
 		thresParm = { 3,{99999,99999,99999},{99999,99999,99999} ,{3,99999,99999}, {99999,99999,99999} };//pic24052202
 
-		thresParm.thresmode = 3;
+		thresParm.thresmode = 4;
 		thresParm.bgmax[0] = 100;
 		thresParm.fgmax[0] = 1;
-		chipsetting.xpitch[0] = 318;
-		chipsetting.ypitch[0] = 552;
+		chipsetting.xpitch[0] = 300;
+		chipsetting.ypitch[0] = 550;
 	//}
 	//else if (picorder > 153000 && picorder < 153099)
 	//{

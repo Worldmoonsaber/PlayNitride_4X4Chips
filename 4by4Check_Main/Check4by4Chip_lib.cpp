@@ -96,6 +96,8 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 		std_Aspect = target.TDwidth / target.TDheight;
 
 	float max_MeasuredH = -1, max_MeasuredW = -1, min_MeasuredH = 5000, min_MeasuredW = 5000;
+	float sum_aspectRatio = 0;
+
 
 	for (int i = 0; i < vChipPossible.size(); i++)
 	{
@@ -146,6 +148,8 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 
 			vChips.push_back(vChipPossible[i]);
 			vContour.push_back(vChipPossible[i].contourMain());
+
+			sum_aspectRatio += vChipPossible[i].AspectRatio();
 			continue;
 		}
 		else
@@ -154,16 +158,44 @@ std::tuple<Point, int, Mat, vector<Point>> potentialchipSearch_V1(Mat cropedRImg
 
 	}
 
+	float avg_aspectRatio=-1;
+	
+	if(vChips.size()>0)
+		avg_aspectRatio = sum_aspectRatio / vChips.size();
+
+
 	//----統計平均方正度
 
 	vector<BlobInfo> vChipsNeedFilterThirdTime;
+	//vContour.clear();
 
+	float perfectRatio = vChips.size()*1.0 / vChipPossible.size();
 
 	for (int i = 0; i < vChipsNeedFilterSecondTime.size(); i++)
 	{
-		if (vChipsNeedFilterSecondTime[i].Width() > max_MeasuredW || vChipsNeedFilterSecondTime[i].Width() < min_MeasuredW
-			|| vChipsNeedFilterSecondTime[i].Height() > max_MeasuredH || vChipsNeedFilterSecondTime[i].Height() < min_MeasuredH)
-			continue;
+		if (avg_aspectRatio != -1 && perfectRatio >0.5) //所有Chip都不符合 方正度>0.8 這個超嚴格的限制條件
+		{
+			if (vChipsNeedFilterSecondTime[i].Width() > max_MeasuredW)
+				continue;
+
+			if (vChipsNeedFilterSecondTime[i].Width() < min_MeasuredW)
+				continue;
+
+
+			if (vChipsNeedFilterSecondTime[i].Height() > max_MeasuredH)
+				continue;
+
+			if (vChipsNeedFilterSecondTime[i].Height() < min_MeasuredH)
+				continue;
+
+
+
+			//if (avg_aspectRatio * 1.1 < vChipsNeedFilterSecondTime[i].AspectRatio())
+			//	continue;
+
+			//if (avg_aspectRatio * 0.9 > vChipsNeedFilterSecondTime[i].AspectRatio())
+			//	continue;
+		}
 
 		vChips.push_back(vChipsNeedFilterSecondTime[i]);
 		vContour.push_back(vChipsNeedFilterSecondTime[i].contourMain());
